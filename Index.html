@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Brew & Bean - Order Online</title>
+</head>
+<body>
+
+<h1>Brew &amp; Bean - Online Coffee Order</h1>
+<hr>
+
+<h2>Build Your Order</h2>
+
+<label for="drink"><b>Choose a Drink:</b></label><br>
+<select id="drink">
+  <option value="">-- Select a drink --</option>
+  <option value="Espresso:290">Espresso - &#8377;290</option>
+  <option value="Latte:395">Latte - &#8377;395</option>
+  <option value="Cappuccino:375">Cappuccino - &#8377;375</option>
+  <option value="Cold Brew:415">Cold Brew - &#8377;415</option>
+  <option value="Matcha Latte:435">Matcha Latte - &#8377;435</option>
+  <option value="Mocha:415">Mocha - &#8377;415</option>
+</select>
+<br><br>
+
+<label for="size"><b>Choose Size:</b></label><br>
+<select id="size">
+  <option value="Small:0">Small (8 oz) - base price</option>
+  <option value="Medium:60" selected>Medium (12 oz) - +&#8377;60</option>
+  <option value="Large:125">Large (16 oz) - +&#8377;125</option>
+</select>
+<br><br>
+
+<b>Add-ons:</b><br>
+<input type="checkbox" id="addon1" value="60">
+<label for="addon1">Extra Shot - +&#8377;60</label><br>
+
+<input type="checkbox" id="addon2" value="50">
+<label for="addon2">Oat Milk - +&#8377;50</label><br>
+
+<input type="checkbox" id="addon3" value="40">
+<label for="addon3">Vanilla Syrup - +&#8377;40</label><br>
+
+<input type="checkbox" id="addon4" value="40">
+<label for="addon4">Caramel Drizzle - +&#8377;40</label><br>
+
+<input type="checkbox" id="addon5" value="50">
+<label for="addon5">Whipped Cream - +&#8377;50</label><br>
+<br>
+
+<label for="qty"><b>Quantity:</b></label><br>
+<input type="number" id="qty" value="1" min="1" max="20">
+<br><br>
+
+<button onclick="addToOrder()">Add to Order</button>
+
+<hr>
+
+<h2>Order Summary</h2>
+
+<div id="order-list">
+  <p>No items added yet.</p>
+</div>
+
+<p>Subtotal: <span id="subtotal">&#8377;0</span></p>
+<p>Tax (8%): <span id="tax">&#8377;0</span></p>
+<hr>
+<p><b>Total: <span id="grand">&#8377;0</span></b></p>
+
+<button onclick="placeOrder()">Place Order</button>
+<button onclick="clearOrder()">Clear Order</button>
+
+<script>
+  var orderItems = [];
+
+  var addonIds = ['addon1', 'addon2', 'addon3', 'addon4', 'addon5'];
+  var addonNames = ['Extra Shot', 'Oat Milk', 'Vanilla Syrup', 'Caramel Drizzle', 'Whipped Cream'];
+
+  function addToOrder() {
+    var drinkSelect = document.getElementById('drink');
+    var sizeSelect = document.getElementById('size');
+    var qty = parseInt(document.getElementById('qty').value);
+
+    if (!drinkSelect.value) {
+      alert('Please select a drink!');
+      return;
+    }
+
+    var drinkParts = drinkSelect.value.split(':');
+    var drinkName = drinkParts[0];
+    var drinkPrice = parseFloat(drinkParts[1]);
+
+    var sizeParts = sizeSelect.value.split(':');
+    var sizeName = sizeParts[0];
+    var sizeExtra = parseFloat(sizeParts[1]);
+
+    var addons = [];
+    var addonTotal = 0;
+    for (var i = 0; i < addonIds.length; i++) {
+      var cb = document.getElementById(addonIds[i]);
+      if (cb.checked) {
+        addons.push(addonNames[i]);
+        addonTotal += parseFloat(cb.value);
+        cb.checked = false;
+      }
+    }
+
+    var unitPrice = drinkPrice + sizeExtra + addonTotal;
+
+    orderItems.push({
+      drink: drinkName,
+      size: sizeName,
+      addons: addons,
+      qty: qty,
+      unitPrice: unitPrice
+    });
+
+    document.getElementById('qty').value = 1;
+    renderSummary();
+  }
+
+  function renderSummary() {
+    var listDiv = document.getElementById('order-list');
+
+    if (orderItems.length === 0) {
+      listDiv.innerHTML = '<p>No items added yet.</p>';
+      document.getElementById('subtotal').textContent = '\u20B90';
+      document.getElementById('tax').textContent = '\u20B90';
+      document.getElementById('grand').textContent = '\u20B90';
+      return;
+    }
+
+    var html = '<ol>';
+    for (var i = 0; i < orderItems.length; i++) {
+      var item = orderItems[i];
+      html += '<li>';
+      html += '<b>' + item.drink + '</b> (' + item.size + ')';
+      if (item.addons.length > 0) {
+        html += '<br>Add-ons: ' + item.addons.join(', ');
+      }
+      html += '<br>Qty: ' + item.qty + ' x \u20B9' + item.unitPrice.toFixed(0);
+      html += ' = <b>\u20B9' + (item.unitPrice * item.qty).toFixed(0) + '</b>';
+      html += '</li><br>';
+    }
+    html += '</ol>';
+    listDiv.innerHTML = html;
+
+    var subtotal = 0;
+    for (var j = 0; j < orderItems.length; j++) {
+      subtotal += orderItems[j].unitPrice * orderItems[j].qty;
+    }
+    var tax = subtotal * 0.08;
+    var grand = subtotal + tax;
+
+    document.getElementById('subtotal').textContent = '\u20B9' + subtotal.toFixed(0);
+    document.getElementById('tax').textContent = '\u20B9' + tax.toFixed(0);
+    document.getElementById('grand').textContent = '\u20B9' + grand.toFixed(0);
+  }
+
+  function clearOrder() {
+    orderItems = [];
+    renderSummary();
+  }
+
+  function placeOrder() {
+    if (orderItems.length === 0) {
+      alert('Your order is empty!');
+      return;
+    }
+    var subtotal = 0;
+    for (var i = 0; i < orderItems.length; i++) {
+      subtotal += orderItems[i].unitPrice * orderItems[i].qty;
+    }
+    var grand = subtotal * 1.08;
+    alert('Order placed! Total: \u20B9' + grand.toFixed(0) + '\nThank you for choosing Brew & Bean!');
+    clearOrder();
+  }
+</script>
+
+</body>
+</html>
