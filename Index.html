@@ -4,81 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brew & Bean - Order Online</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for JS-driven icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="p-3">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1>☕ Brew <span>&amp;</span> Bean</h1>
-        <div class="text-end">
-            <button id="find-me" class="btn btn-outline-warning btn-sm">Find Nearest Store</button>
-            <p id="location-display" class="m-0 mt-1" style="font-size: 11px;">Location: Not detected</p>
-        </div>
-    </div>
+<header>
+    <h1>Brew <span>&amp;</span> Bean</h1>
+    <p>Artisan Coffee &middot; Est. 2018</p>
+    <button id="find-me" class="loc-btn">
+        <i class="fas fa-map-marker-alt"></i> Find Nearest Store
+    </button>
+    <p id="location-display">Location: Not detected</p>
 </header>
 
-<div class="container my-5">
-    <div class="row g-0 main-container shadow">
-        <!-- LEFT: FORM -->
-        <div class="col-lg-8 form-area p-4 bg-white">
-            <p class="step-title">Step 1</p>
-            <h2 class="section-heading">Choose Your Drink</h2>
-            <div class="row g-3" id="drink-menu">
-                <p>Loading drinks...</p>
-            </div>
+<div class="main">
+    <div class="form-area">
+        <p class="step-title">Step 1</p>
+        <h2>Choose Your Drink</h2>
+        <div id="drink-menu" class="drink-grid">
+            <!-- Loaded via script.js -->
+        </div>
 
-            <hr class="my-4">
-
-            <p class="step-title">Step 2</p>
-            <h2 class="section-heading">Drag Add-ons to Cup</h2>
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <div class="addon-source-grid d-flex flex-wrap gap-2">
-                        <!-- Draggable Items -->
-                        <div class="draggable-addon" draggable="true" data-name="Extra Shot" data-price="60">☕ Extra Shot (+₹60)</div>
-                        <div class="draggable-addon" draggable="true" data-name="Oat Milk" data-price="50">🥛 Oat Milk (+₹50)</div>
-                        <div class="draggable-addon" draggable="true" data-name="Vanilla" data-price="40">🍯 Vanilla (+₹40)</div>
-                    </div>
-                </div>
-                <div class="col-md-6 text-center">
-                    <div id="drop-zone" class="p-4 border-dashed rounded">
-                        <span class="d-block mb-2">📥 Drop Add-ons Here</span>
-                        <div id="applied-addons" class="d-flex flex-wrap gap-1 justify-content-center"></div>
-                    </div>
-                </div>
-            </div>
-
-            <hr class="my-4">
-
-            <div class="row align-items-center">
-                <div class="col-6">
-                    <h2 class="section-heading border-0 mb-0">Quantity</h2>
-                </div>
-                <div class="col-6">
-                    <input type="number" id="qty-input" class="form-control w-50 ms-auto" value="1" min="1">
-                </div>
+        <hr>
+        <p class="step-title">Step 2</p>
+        <h2>Add-ons (Drag to add)</h2>
+        <div class="addon-pool">
+            <div class="draggable-addon" draggable="true" data-name="Extra Shot" data-price="60">Extra Shot +₹60</div>
+            <div class="draggable-addon" draggable="true" data-name="Oat Milk" data-price="50">Oat Milk +₹50</div>
+            <div class="draggable-addon" draggable="true" data-name="Vanilla Syrup" data-price="40">Vanilla +₹40</div>
+        </div>
+        <div id="drop-zone">
+            <div id="applied-addons">
+                <span class="placeholder-text">Drop Add-ons Here</span>
             </div>
         </div>
 
-        <!-- RIGHT: SUMMARY -->
-        <div class="col-lg-4 summary-area p-4">
-            <h2>Order Summary</h2>
-            <div id="summary-content" class="mb-4">
-                <p>Please select a drink.</p>
-            </div>
-            
-            <div class="totals border-top pt-3">
-                <div class="d-flex justify-content-between mb-2"><span>Subtotal</span><span id="subtotal">₹0</span></div>
-                <div class="d-flex justify-content-between mb-3 fw-bold fs-4 text-warning"><span>Total</span><span id="grand-total">₹0</span></div>
-            </div>
-
-            <button class="place-btn w-100" id="place-order-btn">Place Order</button>
+        <hr>
+        <p class="step-title">Step 3</p>
+        <h2>Quantity</h2>
+        <div class="qty-row">
+            <span>How many cups?</span>
+            <input type="number" id="qty-input" value="1" min="1" max="20">
         </div>
     </div>
+
+    <div class="summary-area">
+        <h2>Order Summary</h2>
+        <div id="summary-content">
+            <p>Select a drink to see summary...</p>
+        </div>
+        <hr class="summary-hr">
+        <div class="total-line">
+            <span>Subtotal</span><span id="subtotal">₹0.00</span>
+        </div>
+        <div class="total-line grand-total">
+            <span>Total</span><span id="grand-total">₹0.00</span>
+        </div>
+        <button id="place-order-btn" class="place-btn">Place Order</button>
+    </div>
 </div>
+
+<footer>
+    &copy; 2026 Brew &amp; Bean &mdash; Where every cup tells a story.
+</footer>
 
 <script src="script.js"></script>
 </body>

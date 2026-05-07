@@ -1,31 +1,150 @@
-body { background-color: #f5ede0; font-family: Georgia, serif; color: #2c1a0e; }
-header { background-color: #2c1a0e; color: #f5ede0; }
+.body {
+    background-color: #f5ede0;
+    font-family: Georgia, serif;
+    color: #2c1a0e;
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    background-color: #2c1a0e;
+    color: #f5ede0;
+    padding: 30px;
+    text-align: center;
+    border-radius: 15px 15px 0 0;
+}
+
 header h1 span { color: #c8813a; }
 
-.main-container { border-radius: 15px; overflow: hidden; border: 1px solid #ddd; }
-.step-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #c8813a; margin-bottom: 5px; }
-.section-heading { font-size: 20px; border-bottom: 2px solid #f0e6d6; padding-bottom: 10px; margin-bottom: 20px; }
+.main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    background: white;
+    padding: 25px;
+    border-radius: 0 0 15px 15px;
+    border: 1px solid #ddd;
+}
 
-/* Drink Cards */
-.drink-card-wrap { cursor: pointer; }
+.form-area { flex: 2; min-width: 300px; }
+
+.summary-area {
+    flex: 1;
+    min-width: 280px;
+    background-color: #2c1a0e;
+    color: #f5ede0;
+    padding: 20px;
+    border-radius: 12px;
+    height: fit-content;
+}
+
+/* Typography */
+.step-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c8813a;
+    margin-bottom: 5px;
+}
+
+h2 {
+    font-size: 20px;
+    border-bottom: 2px solid #f0e6d6;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Drink Grid */
+.drink-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+}
+
 .drink-card-wrap input { display: none; }
-.card-inner { border: 2px solid #e8ddd0; border-radius: 12px; background: #fdf6ec; transition: 0.3s; padding: 15px; text-align: center; }
-.drink-card-wrap input:checked + .card-inner { border-color: #c8813a; background: #fff8f0; transform: scale(1.05); }
 
-/* Drag and Drop */
-.draggable-addon { 
-    background: #2c1a0e; color: #fff; padding: 8px 12px; border-radius: 20px; 
-    cursor: grab; font-size: 13px; font-weight: bold; 
+.card-inner {
+    border: 2px solid #e8ddd0;
+    border-radius: 12px;
+    background: #fdf6ec;
+    transition: 0.3s;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
 }
-#drop-zone { 
-    border: 2px dashed #c8813a; background: #fdf6ec; min-height: 100px; 
-    transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center;
+
+.drink-card-wrap input:checked + .card-inner {
+    border-color: #c8813a;
+    background: #fff8f0;
+    transform: scale(1.05);
 }
+
+/* Add-ons & Drag/Drop */
+.addon-pool { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+
+.draggable-addon {
+    background: #2c1a0e;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: grab;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#drop-zone {
+    border: 2px dashed #c8813a;
+    background: #fdf6ec;
+    min-height: 80px;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
 #drop-zone.drag-over { background: #f0e6d6; transform: scale(1.02); }
 
-.badge-addon { background: #c8813a; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+.badge-addon {
+    background: #c8813a;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+}
 
-/* Summary Area */
-.summary-area { background-color: #2c1a0e; color: #f5ede0; }
-.place-btn { background: #c8813a; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; transition: 0.3s; }
-.place-btn:hover { background: #a86828; }
+/* Inputs & Buttons */
+#qty-input {
+    width: 60px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.place-btn, .loc-btn {
+    background: #c8813a;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.place-btn { width: 100%; margin-top: 20px; }
+.loc-btn { width: auto; padding: 8px 20px; margin-top: 10px; }
+
+.place-btn:hover, .loc-btn:hover { background: #a86828; }
+.place-btn:disabled { background: #666; cursor: not-allowed; }
+
+/* Summary Details */
+.total-line { display: flex; justify-content: space-between; margin: 5px 0; }
+.grand-total { font-size: 1.3em; font-weight: bold; margin-top: 10px; color: #f5ede0; }
+.summary-hr { border: 0; border-top: 1px solid #444; margin: 15px 0; }
+footer { text-align: center; padding: 30px; font-style: italic; color: #666; }

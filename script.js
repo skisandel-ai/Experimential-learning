@@ -1,20 +1,29 @@
+
 const MOCK_API = "https://jsonplaceholder.typicode.com/posts";
 let selectedAddons = [];
 
 // --- 1. GEOLOCATION ---
 document.getElementById('find-me').addEventListener('click', () => {
     const display = document.getElementById('location-display');
+    
     if (!navigator.geolocation) {
         display.innerText = "Geolocation not supported";
-    } else {
-        display.innerText = "Locating...";
-        navigator.geolocation.getCurrentPosition((pos) => {
-            // In a real app, you'd send these coords to a maps API
-            display.innerText = `Store found near: ${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`;
-        }, () => {
-            display.innerText = "Unable to retrieve location";
-        });
+        return;
     }
+
+    display.innerText = "Locating...";
+    
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const lat = pos.coords.latitude.toFixed(2);
+            const lng = pos.coords.longitude.toFixed(2);
+            display.innerText = `Store found near: ${lat}, ${lng}`;
+        }, 
+        () => {
+            display.innerText = "Unable to retrieve location";
+        },
+        { timeout: 10000 }
+    );
 });
 
 // --- 2. DRAG AND DROP LOGIC ---
@@ -24,15 +33,16 @@ const appliedContainer = document.getElementById('applied-addons');
 
 draggables.forEach(item => {
     item.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', JSON.stringify({
+        const addonData = {
             name: item.dataset.name,
             price: item.dataset.price
-        }));
+        };
+        e.dataTransfer.setData('text/plain', JSON.stringify(addonData));
     });
 });
 
 dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
     dropZone.classList.add('drag-over');
 });
 
@@ -41,17 +51,28 @@ dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-ove
 dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
-    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
     
-    selectedAddons.push(data);
-    renderAddons();
-    updateSummary();
+    try {
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        selectedAddons.push(data);
+        renderAddons();
+        updateSummary();
+    } catch (err) {
+        console.error("Drop failed:", err);
+    }
 });
 
 function renderAddons() {
-    appliedContainer.innerHTML = selectedAddons.map((a, i) => 
-        `<span class="badge-addon">${a.name} <span style="cursor:pointer" onclick="removeAddon(${i})">×</span></span>`
-    ).join('');
+    if (selectedAddons.length === 0) {
+        appliedContainer.innerHTML = '<span class="placeholder-text">Drop Add-ons Here</span>';
+        return;
+    }
+    appliedContainer.innerHTML = selectedAddons.map((addon, i) => `
+        <span class="badge-addon">
+            ${addon.name} 
+            <span style="margin-left:8px; cursor:pointer" onclick="removeAddon(${i})">&times;</span>
+        </span>
+    `).join('');
 }
 
 window.removeAddon = (index) => {
@@ -63,20 +84,20 @@ window.removeAddon = (index) => {
 // --- 3. DYNAMIC MENU ---
 async function loadMenu() {
     const drinks = [
-        { name: "Espresso", price: 290, icon: "☕" },
-        { name: "Latte", price: 395, icon: "🥛" },
-        { name: "Mocha", price: 420, icon: "🍫" }
+        { name: "Espresso", price: 290, iconClass: "fas fa-coffee" },
+        { name: "Latte", price: 395, iconClass: "fas fa-mug-hot" },
+        { name: "Mocha", price: 420, iconClass: "fas fa-glass-whiskey" }
     ];
     
     const menu = document.getElementById('drink-menu');
     menu.innerHTML = drinks.map(d => `
-        <div class="col-md-4">
-            <label class="drink-card-wrap d-block">
+        <div class="drink-item">
+            <label class="drink-card-wrap">
                 <input type="radio" name="drink" value="${d.name}" data-price="${d.price}" onchange="updateSummary()">
                 <div class="card-inner">
-                    <div class="fs-2">${d.icon}</div>
-                    <div class="fw-bold">${d.name}</div>
-                    <div class="text-warning">₹${d.price}</div>
+                    <div style="font-size: 28px; margin-bottom: 10px;"><i class="${d.iconClass}"></i></div>
+                    <div style="font-weight: bold;">${d.name}</div>
+                    <div style="color: #c8813a; margin-top: 5px;">₹${d.price}</div>
                 </div>
             </label>
         </div>
@@ -88,22 +109,24 @@ function updateSummary() {
     const drinkEl = document.querySelector('input[name="drink"]:checked');
     if (!drinkEl) return;
 
-    const qty = document.getElementById('qty-input').value;
-    const basePrice = parseInt(drinkEl.dataset.price);
-    const addonPrice = selectedAddons.reduce((sum, a) => sum + parseInt(a.price), 0);
+    const qty = parseInt(document.getElementById('qty-input').value) || 1;
+    const basePrice = parseFloat(drinkEl.dataset.price);
+    const addonPrice = selectedAddons.reduce((sum, a) => sum + parseFloat(a.price), 0);
     
-    const total = (basePrice + addonPrice) * qty;
+    const subtotal = (basePrice + addonPrice) * qty;
 
     document.getElementById('summary-content').innerHTML = `
-        <div class="d-flex justify-content-between">
+        <div style="display:flex; justify-content: space-between;">
             <span>${drinkEl.value} x${qty}</span>
-            <span>₹${basePrice * qty}</span>
+            <span>₹${(basePrice * qty).toFixed(2)}</span>
         </div>
-        <small class="text-secondary">Add-ons: ${selectedAddons.map(a => a.name).join(', ') || 'None'}</small>
+        <small style="color: #aaa; display:block; margin-top:5px;">
+            Add-ons: ${selectedAddons.map(a => a.name).join(', ') || 'None'}
+        </small>
     `;
     
-    document.getElementById('subtotal').innerText = `₹${total}`;
-    document.getElementById('grand-total').innerText = `₹${total}`;
+    document.getElementById('subtotal').innerText = `₹${subtotal.toFixed(2)}`;
+    document.getElementById('grand-total').innerText = `₹${subtotal.toFixed(2)}`;
 }
 
 document.getElementById('place-order-btn').addEventListener('click', async () => {
@@ -117,24 +140,30 @@ document.getElementById('place-order-btn').addEventListener('click', async () =>
     const order = {
         item: drinkEl.value,
         addons: selectedAddons,
-        total: document.getElementById('grand-total').innerText
+        total: document.getElementById('grand-total').innerText,
+        timestamp: new Date().toISOString()
     };
 
     try {
-        await fetch(MOCK_API, {
+        const response = await fetch(MOCK_API, {
             method: 'POST',
             body: JSON.stringify(order),
             headers: { 'Content-type': 'application/json' }
         });
-        alert("Order placed successfully!");
+
+        if (response.ok) {
+            alert("Order placed successfully!");
+        } else {
+            throw new Error("Server error");
+        }
     } catch (e) {
-        alert("Order failed!");
+        alert("Order failed! Please try again.");
     } finally {
         btn.disabled = false;
         btn.innerText = "Place Order";
     }
 });
 
-// Start
+// Initialize on Load
 loadMenu();
 document.getElementById('qty-input').addEventListener('input', updateSummary);
